@@ -1,0 +1,2 @@
+2020-08-24 22:09:25,240 - /home/attila/apps/prod-fast-api-home/fast-api-home/common/get_open_id.py[line:14] - INFO: {'session_key': 'cKfMBxde4C3vJ1/Ukkz6NQ==', 'openid': 'o5HRe5VtoHm5UyrhXm2oIwgirrJ0'}
+2020-08-24 22:09:38,053 - /home/attila/apps/prod-fast-api-home/fast-api-home/common/get_open_id.py[line:14] - INFO: {'session_key': 'cKfMBxde4C3vJ1/Ukkz6NQ==', 'openid': 'o5HRe5VtoHm5UyrhXm2oIwgirrJ0'}

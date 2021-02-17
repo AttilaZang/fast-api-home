@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>实名认证审核</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css"
+          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+</head>
+<body onload="check_msg()">
+
+<div class="container">
+
+    <div>
+        <table id="verify" class="table table-hover">
+            <thead>
+            <tr>
+                <th>骑手id</th>
+                <th>人像面</th>
+                <th>国徽面</th>
+                <th>自拍照</th>
+                <th>真实姓</th>
+                <th>真实名</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody id="check_result">
+            </tbody>
+        </table>
+    </div>
+</div>
+<script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+<script>
+
+    // 待审核列表
+    function check_msg() {
+        var pwd = localStorage.getItem('pwd');
+        $.ajax({
+            url: '/courier/check/list/',
+            type: 'post',
+            data: JSON.stringify({'self_pwd': pwd}),
+            contentType: "application/json",
+            dataType: "json",
+            success: function (response) {
+                var check_list = response.data.list;
+                console.log(check_list);
+                if (check_list) {
+                    var check_table = $("#check_result");
+                    for (var i = 0; i < check_list.length; i++) {
+                        var str = '';
+                        var msg = check_list[i];
+                        str += "<tr>" +
+                            "<td>" + msg.courier_id + "</td>" +
+                            "<td>" + "<a href=" + msg.id_card_front + ">" + "人像照" + "</a>" + "</td>" +
+                            "<td>" + "<a href=" + msg.id_card_back + ">" + "国徽照" + "</a>" + "</td>" +
+                            "<td>" + "<a href=" + msg.real_pic + ">" + "自拍照" + "</a>" + "</td>" +
+                            "<td contenteditable='true'>" + msg.last_name + "</td>" +
+                            "<td contenteditable='true'>" + msg.first_name + "</td>" +
+                            "<td>" + "<button class='pass btn btn-primary' type='submit' onclick='passCheck(id)' id=" + i + ">通过</button>" + "</td>" +
+                            "</tr>";
+                        check_table.append(str)
+                    }
+
+                }
+
+            },
+            error: function (res) {
+                if (res.status === 401) {
+                    alert("密码错误")
+                } else {
+                    alert("获取列表失败")
+                }
+            }
+        })
+    }
+
+    // 实名认证
+    function passCheck(id) {
+        var row = parseInt(id) + 1;
+        var row_msg = $("#verify").find('tr').eq(row);
+        var courier_id_str = row_msg.find('td').eq(0).text();
+        var last_name = row_msg.find('td').eq(4).text();
+        var first_name = row_msg.find('td').eq(5).text();
+        var courier_id_int = parseInt(courier_id_str);
+        var pwd = localStorage.getItem('pwd');
+        $.ajax({
+            url: '/courier/pass/check/',
+            type: 'post',
+            data: JSON.stringify({'self_pwd': pwd, 'courier_id': courier_id_int, 'last_name': last_name, 'first_name': first_name}),
+            contentType: "application/json",
+            dataType: "json",
+            success: function (res) {
+                if (res.data === "success") {
+                    location.reload()
+                }
+            },
+            error: function (res) {
+                if (res.status === 401) {
+                    alert("密码错误")
+                } else {
+                    alert("审核失败")
+                }
+
+            }
+        })
+
+
+    }
+</script>
+
+</body>
+</html>

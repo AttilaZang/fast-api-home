@@ -1,0 +1,14 @@
+
+# ******* SQLAlchemy 的迁移 *******
+
+# 1. cd 项目根目录下  run `alembic init alembic`
+# 2. 将alembic.ini 文件中的 sqlalchemy.url 改成自己的 !!! 不用加引号
+# 3. 编辑alembic文件中的env.py
+    # import os
+	# import sys
+	# sys.path.append(os.path.dirname(os.path.abspath(__file__)) +"/../")
+	# from common.database import Base
+	# target_metadata = Base.metadata
+# 4. 在common.database文件中导入model文件夹下的表文件 不必精确到文件里面的模型类
+# 5. run `alembic revision --autogenerate -m “更新的信息”`
+# 6. run `alembic upgrade head`

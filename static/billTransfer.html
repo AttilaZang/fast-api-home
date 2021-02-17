@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>账单转账</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css"
+          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+</head>
+<body onload="transfer_msg()">
+
+<div class="container">
+
+    <div>
+        <table id="bill" class="table table-hover">
+            <thead>
+            <tr>
+                <th>账单id</th>
+                <th>骑手id</th>
+                <th>支付宝</th>
+                <th>提现金额(元)</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody id="transfer_result">
+            </tbody>
+        </table>
+    </div>
+</div>
+<script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+
+<script>
+    // 待转账列表
+    function transfer_msg() {
+        var pwd = localStorage.getItem('pwd');
+        $.ajax({
+            url: '/courier/transfer/list/',
+            type: 'post',
+            data: JSON.stringify({'self_pwd': pwd}),
+            contentType: "application/json",
+            dataType: "json",
+            success: function (response) {
+                var transfer_list = response.data.list;
+                console.log(transfer_list);
+                if (transfer_list) {
+                    var transfer_table = $("#transfer_result");
+                    for (var i = 0; i < transfer_list.length; i++) {
+                        var str = '';
+                        var msg = transfer_list[i];
+                        var amount = msg.amount / 100;
+                        str += "<tr>" +
+                            "<td>" + msg.bill_id + "</td>" +
+                            "<td>" + msg.courier_id + "</td>" +
+                            "<td>" + msg.alipay + "</td>" +
+                            "<td>" + amount + "</td>" +
+                            "<td>" + "<button class=\"btn btn-primary\" onclick='passTransfer(id)' id=" + i + ">通过</button>" + "</td>" +
+                            "</tr>>"
+                        ;
+                        transfer_table.append(str)
+                    }
+
+                }
+
+            },
+            error: function (res) {
+                if (res.status === 401) {
+                    alert("密码错误")
+                } else {
+                    alert("获取列表失败")
+                }
+
+
+            }
+        })
+    }
+
+    // 同意转账
+    function passTransfer(id) {
+        var row = parseInt(id) + 1;
+        var row_msg = $("#bill").find('tr').eq(row);
+        var courier_id_int = parseInt(row_msg.find('td').eq(1).text());
+        var bill_id_int = parseInt(row_msg.find('td').eq(0).text());
+        var amount = parseInt(row_msg.find('td').eq(3).text()) * 100;   // 将`元`改为`分`
+        var pwd = localStorage.getItem('pwd');
+
+        $.ajax({
+            url: '/courier/transfer/',
+            type: 'post',
+            data: JSON.stringify({
+                'self_pwd': pwd,
+                'courier_id': courier_id_int,
+                'bill_id': bill_id_int,
+                'amount': amount
+            }),
+            contentType: "application/json",
+            dataType: "json",
+            success: function (res) {
+                if (res.data === "success") {
+                    location.reload()
+                }
+            },
+            error: function (res) {
+                if (res.status === 401) {
+                    alert("密码错误")
+                } else {
+                    alert("转账失败")
+                }
+
+
+            }
+        })
+
+
+    }
+
+</script>
+</body>
+</html>

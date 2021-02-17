@@ -1,0 +1,5 @@
+*.pyc
+.idea/*
+alembic/*
+alembic.ini
+./__pycache__
